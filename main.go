@@ -30,7 +30,7 @@ func main() {
 	serverCRUD.GET("/read/:key", readHandler)
 	serverCRUD.POST("/add/:key", addHandler)
 	serverCRUD.GET("/activate", activationHandler)
-	serverCRUD.GET("/login", loginHandler)
+	serverCRUD.POST("/login", loginHandler)
 	wg.Add(1)
 	go func() {
 		http.ListenAndServe(":8555", serverCRUD)

@@ -74,11 +74,13 @@ func activationHandler(w http.ResponseWriter, r *http.Request, p httprouter.Para
 
 func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	///userName,parola
-	_, err := getUserByUsername(r.FormValue("user"))
+	decoder := json.NewDecoder(r.Body)
+	newU := User{0, "", "", "", "", 0, "", "", "", "", false}
+	decoder.Decode(&newU)
+	_, err := getUserByUsername(newU.Username)
 	var printData []byte
 	if err == nil {
-
-		if canLogin(r.FormValue("user"), r.FormValue("pass")) {
+		if canLogin(newU.Username, string(newU.PasswordHash)) {
 			sID := generate16DigitID()
 			for seesionExist(sID) {
 				sID = generate16DigitID()

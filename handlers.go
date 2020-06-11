@@ -73,7 +73,6 @@ func activationHandler(w http.ResponseWriter, r *http.Request, p httprouter.Para
 }
 
 func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	///userName,parola
 	decoder := json.NewDecoder(r.Body)
 	newU := User{0, "", "", "", "", 0, "", "", "", "", false}
 	decoder.Decode(&newU)

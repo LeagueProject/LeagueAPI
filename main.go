@@ -59,7 +59,7 @@ func main() {
 		}
 		fmt.Println(us)
 	}
-
+	fmt.Println(findUserByUsername("g0g05arui"))
 	defer db.Close()
 	err = db.Ping()
 	if err != nil {

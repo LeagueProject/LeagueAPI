@@ -49,11 +49,19 @@ func generate16DigitID() int64 {
 }
 
 func findUserByUsername(userName string) bool {
-	return false
+	userQuery, err := db.Query(fmt.Sprintf("SELECT * FROM league WHERE Username='%s'", userName))
+	if err != nil {
+		return false
+	}
+	return userQuery.Next()
 }
 
 func findUserByID(userID int64) bool {
-	return false
+	userQuery, err := db.Query(fmt.Sprintf("SELECT * FROM league WHERE UID=%v", userID))
+	if err != nil {
+		return false
+	}
+	return userQuery.Next()
 }
 
 /*
@@ -68,10 +76,6 @@ func addUser(newUser User) HTTPResponse {
 	if findUserByUsername(newUser.Username) {
 		return HTTPResponse{Response: "User already exists", Code: 409}
 	}
-	/*
-		Add User to DB
-	*/
-
 	userID := generate16DigitID()
 	for findUserByID(userID) {
 		userID = generate16DigitID()
@@ -96,7 +100,16 @@ func seesionExist(sID int64) bool {
 }
 
 func canLogin(user, pass string) bool {
-	return user == "cnmsr" && pass == "e10adc3949ba59abbe56e057f20f883e"
+	userQuery, err := db.Query(fmt.Sprintf("SELECT Username,Password FROM league WHERE Username='%s'", user))
+	if err != nil {
+		return false
+	}
+	if userQuery.Next() == false {
+		return false
+	}
+	var fsUser, fsPassword string
+	userQuery.Scan(&fsUser, &fsPassword)
+	return fsUser == user && fsPassword == pass
 }
 
 func sendVerifcationMail(to, body string) {

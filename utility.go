@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"net/smtp"
-	"strconv"
 )
 
 var (
@@ -71,12 +70,22 @@ func addUser(newUser User) HTTPResponse {
 	/*
 		Add User to DB
 	*/
+
 	userID := generate16DigitID()
 	for findUserByID(userID) {
 		userID = generate16DigitID()
 	}
 	newUser.UID = userID
-	sendVerifcationMail(newUser.InstitutionEmail, "http://34.67.7.77:8555/activate?id="+strconv.FormatInt(userID, 10))
+
+	sqlStatement := `INSERT INTO league (UID,IEmail,PMail,Username,Password,YearOfStudy,College,University,Major,Serie,verified) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`
+	_, err := db.Exec(sqlStatement,
+		newUser.UID, newUser.InstitutionEmail, newUser.PersonalEmail, newUser.Username,
+		newUser.PasswordHash, newUser.YearOfStudy, newUser.College, newUser.University, newUser.Major, newUser.Serie, 0)
+	if err != nil {
+		panic(err)
+	}
+
+	//sendVerifcationMail(newUser.InstitutionEmail, "http://34.67.7.77:8555/activate?id="+strconv.FormatInt(userID, 10))
 	fmt.Println(newUser)
 	return HTTPResponse{Response: "User added", Code: 200}
 }

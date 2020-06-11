@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"net/smtp"
+	"strconv"
 )
 
 var (
@@ -85,7 +86,7 @@ func addUser(newUser User) HTTPResponse {
 		panic(err)
 	}
 
-	//sendVerifcationMail(newUser.InstitutionEmail, "http://34.67.7.77:8555/activate?id="+strconv.FormatInt(userID, 10))
+	sendVerifcationMail(newUser.InstitutionEmail, "http://34.67.7.77:8555/activate?id="+strconv.FormatInt(userID, 10))
 	fmt.Println(newUser)
 	return HTTPResponse{Response: "User added", Code: 200}
 }

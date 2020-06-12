@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/md5"
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -27,7 +28,7 @@ func getUserByID(uID int64) (User, error) {
 		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.verified)
 		return us, nil
 	}
-	return User{}, err
+	return User{}, errors.New("User does not exist")
 }
 
 /*
@@ -44,7 +45,7 @@ func getUserByUsername(username string) (User, error) {
 		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.verified)
 		return us, nil
 	}
-	return User{}, err
+	return User{}, errors.New("User does not exist")
 }
 
 func generate16DigitID() int64 {

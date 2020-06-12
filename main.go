@@ -48,18 +48,14 @@ func main() {
 	serverCRUD.POST("/add/:key", addHandler)
 	serverCRUD.GET("/activate", activationHandler)
 	serverCRUD.POST("/login", loginHandler)
-
 	querryUser, err := db.Query("SELECT * FROM league")
 	for querryUser.Next() {
 		var us User
 		if err := querryUser.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.verified); err != nil {
-			// Check for a scan error.
-			// Query rows will be closed with defer.
 			log.Fatal(err)
 		}
 		fmt.Println(us)
 	}
-	fmt.Println(findUserByUsername("g0g05arui"))
 	defer db.Close()
 	err = db.Ping()
 	if err != nil {

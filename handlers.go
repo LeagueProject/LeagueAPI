@@ -10,8 +10,6 @@ import (
 )
 
 /*
-	Problema cu securitate ??
-	Oricine poate citi un user
 	----TODO----
 	Sa primesc in request si UID si SessionID al userului care face request-ul
 	Verifica daca sunt compatibile UID si SID si dupa verific ce date poate sa primeasca UID-ul respectiv
@@ -76,15 +74,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	decoder := json.NewDecoder(r.Body)
 	newU := User{0, "", "", "", "", 0, "", "", "", "", false}
 	decoder.Decode(&newU)
-	_, err := getUserByUsername(newU.Username)
+	us, err := getUserByUsername(newU.Username)
 	var printData []byte
 	if err == nil {
 		if canLogin(newU.Username, string(newU.PasswordHash)) {
-			sID := generate16DigitID()
-			for seesionExist(sID) {
-				sID = generate16DigitID()
-			}
-			printData, _ = json.Marshal(HTTPResponse{Response: strconv.FormatInt(sID, 10), Code: 200})
+			printData, _ = json.Marshal(HTTPResponse{Response: strconv.FormatInt(us.UID, 10), Code: 200})
 		} else {
 			printData, _ = json.Marshal(HTTPResponse{Response: strconv.FormatInt(0, 10), Code: 400})
 		}

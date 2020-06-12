@@ -120,6 +120,8 @@ func canLogin(user, pass string) bool {
 	}
 	var fsUser, fsPassword string
 	userQuery.Scan(&fsUser, &fsPassword)
+	fmt.Println(fsPassword)
+	fmt.Println(fmt.Sprintf("%x", md5.Sum([]byte(pass))))
 	return fsUser == user && fsPassword == fmt.Sprintf("%x", md5.Sum([]byte(pass)))
 }
 

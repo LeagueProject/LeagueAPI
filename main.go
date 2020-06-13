@@ -31,7 +31,7 @@ var db *sql.DB
 */
 
 const (
-	host     = "34.67.7.77"
+	host     = "18.189.3.72"
 	port     = 5432
 	user     = "postgres"
 	password = "test"
@@ -63,7 +63,7 @@ func main() {
 	}
 	wg.Add(1)
 	go func() {
-		http.ListenAndServe(":8555", serverCRUD)
+		http.ListenAndServe(":8080", serverCRUD)
 		wg.Done()
 	}()
 	wg.Wait()

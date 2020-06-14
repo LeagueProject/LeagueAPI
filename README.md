@@ -8,9 +8,9 @@
 `./LeagueAPI`  
 
 # Api usage :
-`get 34.67.7.77:8555/read/user?id=1005  -> returneaza un user dupa ID sub forma json` 
+`get $host:$port/read/user?id=1005  -> returneaza un user dupa ID sub forma json` 
 ```
-post 34.67.7.77:8555/add/user -> in body-ul din request se pune un fisier de tip json care descrie structura user
+post $host:$port/add/user -> in body-ul din request se pune un fisier de tip json care descrie structura user
 Ex : in body
  {
     "UID": 1005,
@@ -30,8 +30,13 @@ Ex : in body
 ```
 
 ```
-get 34.67.7.77:8555/login?user=cnmsr&pass=e10adc3949ba59abbe56e057f20f883e
-->returneaza un json cu un sessionID si un cod
+get $host:$port/login
+cu body
+{
+ "Username":"cnmsr"
+ "Password":"123456"
+}
+->returneaza un json cu un UID si un cod
 
 
 ```

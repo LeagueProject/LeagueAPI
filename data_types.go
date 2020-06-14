@@ -19,6 +19,8 @@ type User struct {
 	University       string       `json:"University"`
 	Major            string       `json:"Major"`
 	Serie            string       `json:"Serie"`
+	FirstName        string       `json:"FirstName"`
+	LastName         string       `json:"LastName"`
 	verified         bool
 }
 
@@ -27,6 +29,15 @@ type User struct {
 	@Note : folosesc coduri HTTP pt status
 */
 type HTTPResponse struct {
-	Response string `json:"Response"`
-	Code     int64  `json:"Code"`
+	Response []string `json:"Response"`
+	Code     int64    `json:"Code"`
+}
+
+type Message struct {
+	ID            int64  `json:"ID"`
+	Author        string `json:"Author"`
+	Text          string `json:"Text"`
+	MediaFilePath string `json:"Media"`
+	Date          string `json:"Date"`
+	Reciever      int64  `json:"Reciever"`
 }

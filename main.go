@@ -31,7 +31,7 @@ var db *sql.DB
 */
 
 const (
-	host     = "18.189.3.72"
+	host     = "35.184.233.76"
 	port     = 5432
 	user     = "postgres"
 	password = "test"
@@ -51,7 +51,7 @@ func main() {
 	querryUser, err := db.Query("SELECT * FROM league")
 	for querryUser.Next() {
 		var us User
-		if err := querryUser.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.verified); err != nil {
+		if err := querryUser.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.FirstName, &us.LastName, &us.verified); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Println(us)

@@ -28,7 +28,7 @@ func readHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		if err == nil {
 			printData, _ = json.Marshal(user)
 		} else {
-			printData, _ = json.Marshal(HTTPResponse{Response: "Unexistend user", Code: 404})
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{"Unexistend user"}, Code: 404})
 		}
 		fmt.Fprintln(w, string(printData))
 	} else if querry == "post" {
@@ -40,8 +40,9 @@ func addHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	querry := p.ByName("key")
 	if querry == "user" {
 		decoder := json.NewDecoder(r.Body)
-		newU := User{0, "", "", "", "", 0, "", "", "", "", false}
+		var newU User
 		decoder.Decode(&newU)
+		fmt.Println(newU)
 		response := addUser(newU)
 		printData, _ := json.Marshal(response)
 		fmt.Fprintln(w, string(printData))
@@ -55,15 +56,15 @@ func activationHandler(w http.ResponseWriter, r *http.Request, p httprouter.Para
 	user, err := getUserByID(id)
 	var printData []byte
 	if err != nil {
-		printData, _ = json.Marshal(HTTPResponse{Response: "User does not exist", Code: 404})
+		printData, _ = json.Marshal(HTTPResponse{Response: []string{"User does not exist"}, Code: 404})
 	} else {
 		if user.verified == true {
-			printData, _ = json.Marshal(HTTPResponse{Response: "User already activated", Code: 304})
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{"User already activated"}, Code: 304})
 		} else {
 			/*
 				Change status in db
 			*/
-			printData, _ = json.Marshal(HTTPResponse{Response: "User verified", Code: 202})
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{"User verified"}, Code: 202})
 		}
 	}
 	fmt.Println("handler user ", id)
@@ -72,18 +73,18 @@ func activationHandler(w http.ResponseWriter, r *http.Request, p httprouter.Para
 
 func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	decoder := json.NewDecoder(r.Body)
-	newU := User{0, "", "", "", "", 0, "", "", "", "", false}
+	var newU User
 	decoder.Decode(&newU)
 	us, err := getUserByUsername(newU.Username)
 	var printData []byte
 	if err == nil {
 		if canLogin(newU.Username, string(newU.PasswordHash)) {
-			printData, _ = json.Marshal(HTTPResponse{Response: strconv.FormatInt(us.UID, 10), Code: 200})
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(us.UID, 10)}, Code: 200})
 		} else {
-			printData, _ = json.Marshal(HTTPResponse{Response: strconv.FormatInt(0, 10), Code: 400})
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(0, 10)}, Code: 400})
 		}
 	} else {
-		printData, _ = json.Marshal(HTTPResponse{Response: strconv.FormatInt(0, 10), Code: 404})
+		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(0, 10)}, Code: 404})
 	}
 	fmt.Fprintln(w, string(printData))
 }

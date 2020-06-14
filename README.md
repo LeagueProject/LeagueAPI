@@ -30,8 +30,13 @@ Ex : in body
 ```
 
 ```
-get $host:$port/login?user=cnmsr&pass=e10adc3949ba59abbe56e057f20f883e
-->returneaza un json cu un sessionID si un cod
+get $host:$port/login
+cu body
+{
+ "Username":"cnmsr"
+ "Password":"123456"
+}
+->returneaza un json cu un UID si un cod
 
 
 ```

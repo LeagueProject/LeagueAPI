@@ -88,7 +88,7 @@ func addUser(newUser User) HTTPResponse {
 		userID = generate16DigitID()
 	}
 	newUser.UID = userID
-	if sendVerifcationMail(newUser.InstitutionEmail, "http://35.184.233.76/activate?id="+strconv.FormatInt(userID, 10)) == false {
+	if sendVerifcationMail(newUser.InstitutionEmail, "http://35.184.233.76:8080/activate?id="+strconv.FormatInt(userID, 10)) == false {
 		return HTTPResponse{Response: []string{"Invalid Email"}, Code: 404}
 	}
 	sqlStatement := `INSERT INTO league (UID,IEmail,PMail,Username,Password,YearOfStudy,College,University,Major,Serie,FirstName,LastName,verified) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`

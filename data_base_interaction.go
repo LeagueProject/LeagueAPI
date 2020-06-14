@@ -103,3 +103,38 @@ func addUser(newUser User) HTTPResponse {
 	fmt.Println(newUser)
 	return HTTPResponse{Response: []string{"User added"}, Code: 200}
 }
+
+func checkUserByID(uID, sID int64) error {
+	return nil
+}
+
+func seesionExist(sID int64) bool {
+	sessionQuery, err := db.Query(fmt.Sprintf("SELECT * FROM sessions WHERE sid=%v", sID))
+	if err != nil {
+		return false
+	}
+	return sessionQuery.Next()
+}
+
+func getUIDFromSession(sID int64) int64 {
+	sessionQuery, err := db.Query(fmt.Sprintf("SELECT UID FROM sessions WHERE sid=%v", sID))
+	if err != nil {
+		return 0
+	}
+	if sessionQuery.Next() == false {
+		return -1
+	}
+	var uID int64
+	sessionQuery.Scan(&uID)
+	return uID
+}
+
+func sendMessage(newMessage Message) {
+	sqlStatement := `INSERT INTO messages (id,authorid,text,mediafilepath,date,receiver,typeofreceiver) VALUES($1,$2,$3,$4,$5,$6,$7)`
+	_, err := db.Exec(sqlStatement,
+		newMessage.ID, newMessage.AuthorID, newMessage.Text, newMessage.MediaFilePath, newMessage.Date, newMessage.Receiver, newMessage.TypeOfReceiver)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(newMessage)
+}

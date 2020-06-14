@@ -18,10 +18,6 @@ func (passwordType) MarshalJSON() ([]byte, error) {
 	return []byte(`""`), nil
 }
 
-func seesionExist(sID int64) bool {
-	return false
-}
-
 func sendVerifcationMail(to, body string) bool {
 	from := "league.noreply@gmail.com"
 	pass := "indreias@leagueINC"

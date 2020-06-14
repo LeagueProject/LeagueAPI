@@ -38,16 +38,27 @@ func readHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func addHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	querry := p.ByName("key")
+	decoder := json.NewDecoder(r.Body)
 	if querry == "user" {
-		decoder := json.NewDecoder(r.Body)
 		var newU User
 		decoder.Decode(&newU)
-		fmt.Println(newU)
 		response := addUser(newU)
 		printData, _ := json.Marshal(response)
 		fmt.Fprintln(w, string(printData))
-	} else if querry == "post" {
-
+	} else if querry == "message" {
+		var newMessage Message
+		decoder.Decode(&newMessage)
+		uID := newMessage.AuthorID
+		sID, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
+		err := checkUserByID(uID, sID)
+		var printData []byte
+		if err == nil {
+			sendMessage(newMessage)
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{"Sent"}, Code: 200})
+		} else {
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{"Not Sent"}, Code: 401})
+		}
+		fmt.Fprintln(w, string(printData))
 	}
 }
 

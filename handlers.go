@@ -72,9 +72,7 @@ func activationHandler(w http.ResponseWriter, r *http.Request, p httprouter.Para
 		if user.verified == true {
 			printData, _ = json.Marshal(HTTPResponse{Response: []string{"User already activated"}, Code: 304})
 		} else {
-			/*
-				Change status in db
-			*/
+			verifyUser(id)
 			printData, _ = json.Marshal(HTTPResponse{Response: []string{"User verified"}, Code: 202})
 		}
 	}
@@ -88,9 +86,14 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	decoder.Decode(&newU)
 	us, err := getUserByUsername(newU.Username)
 	var printData []byte
-	if err == nil {
+	fmt.Println(us)
+	if us.verified == false {
+		printData, _ = json.Marshal(HTTPResponse{Response: []string{"0", "Not verified"}, Code: 404})
+	} else if err == nil {
 		if canLogin(newU.Username, string(newU.PasswordHash)) {
-			printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(us.UID, 10)}, Code: 200})
+			sID := newSessionID()
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(us.UID, 10), strconv.FormatInt(sID, 10)}, Code: 200})
+
 		} else {
 			printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(0, 10)}, Code: 400})
 		}

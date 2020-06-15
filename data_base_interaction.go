@@ -138,3 +138,15 @@ func sendMessage(newMessage Message) {
 	}
 	fmt.Println(newMessage)
 }
+
+func verifyUser(uID int64) {
+	db.Exec(`UPDATE league SET verified=1 WHERE uid=$1`, uID)
+}
+
+func newSessionID() int64 {
+	id := generate16DigitID()
+	for seesionExist(id) {
+		id = generate16DigitID()
+	}
+	return id
+}

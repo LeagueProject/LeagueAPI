@@ -83,9 +83,9 @@ func addUser(newUser User) HTTPResponse {
 		return HTTPResponse{Response: []string{"User already exists"}, Code: 409}
 	}
 	newUser.PasswordHash = passwordType(fmt.Sprintf("%x", md5.Sum([]byte(string(newUser.PasswordHash)))))
-	userID := generate16DigitID()
+	userID := generate18DigitID()
 	for findUserByID(userID) {
-		userID = generate16DigitID()
+		userID = generate18DigitID()
 	}
 	newUser.UID = userID
 	if sendVerifcationMail(newUser.InstitutionEmail, "http://35.184.233.76:8080/activate?id="+strconv.FormatInt(userID, 10)) == false {
@@ -144,13 +144,41 @@ func verifyUser(uID int64) {
 }
 
 func newSessionID() int64 {
-	id := generate16DigitID()
+	id := generate18DigitID()
 	for seesionExist(id) {
-		id = generate16DigitID()
+		id = generate18DigitID()
 	}
 	return id
 }
 
 func addSession(sID, uID int64) {
 	db.Exec(`INSERT INTO sessions (sid,uid) VALUES ($1,$2)`, sID, uID)
+}
+
+func messageExist(ID int64) bool {
+	messageQuery, err := db.Query(fmt.Sprintf("SELECT * FROM messages WHERE id=%v", ID))
+	if err != nil {
+		return false
+	}
+	return messageQuery.Next()
+}
+
+func newMessageID() int64 {
+	id := generate18DigitID()
+	for messageExist(id) {
+		id = generate18DigitID()
+	}
+	return id
+
+}
+
+func getSession(sID int64) int64 {
+	sessionQuery, err := db.Query(fmt.Sprintf("SELECT * FROM sessions WHERE sid=%v", sID))
+	if err != nil {
+		return 0
+	}
+	sessionQuery.Next()
+	var uid int64
+	sessionQuery.Scan(&sID, &uid)
+	return uid
 }

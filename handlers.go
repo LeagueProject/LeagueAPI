@@ -50,9 +50,11 @@ func addHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		decoder.Decode(&newMessage)
 		uID := newMessage.AuthorID
 		sID, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
+
 		err := checkUserByID(uID, sID)
 		var printData []byte
 		if err == nil {
+			newMessage.ID = newMessageID()
 			sendMessage(newMessage)
 			printData, _ = json.Marshal(HTTPResponse{Response: []string{"Sent"}, Code: 200})
 		} else {
@@ -100,6 +102,18 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		}
 	} else {
 		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(0, 10)}, Code: 404})
+	}
+	fmt.Fprintln(w, string(printData))
+}
+
+func sessionValidHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	sid, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
+	uid, _ := strconv.ParseInt(r.FormValue("uid"), 10, 64)
+	var printData []byte
+	if uid == getSession(sid) {
+		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(1, 10)}, Code: 200})
+	} else {
+		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(9, 10)}, Code: 404})
 	}
 	fmt.Fprintln(w, string(printData))
 }

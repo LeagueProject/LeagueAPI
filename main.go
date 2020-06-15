@@ -48,6 +48,7 @@ func main() {
 	serverCRUD.POST("/add/:key", addHandler)
 	serverCRUD.GET("/activate", activationHandler)
 	serverCRUD.POST("/login", loginHandler)
+	serverCRUD.POST("/check/session", sessionValidHandler)
 	querryUser, err := db.Query("SELECT * FROM league")
 	for querryUser.Next() {
 		var us User

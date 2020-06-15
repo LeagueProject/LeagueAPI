@@ -6,8 +6,8 @@ import (
 	"net/smtp"
 )
 
-func generate16DigitID() int64 {
-	return 1e16 + rand.Int63n(1e15)
+func generate18DigitID() int64 {
+	return (rand.Int63n(7)+1)*1e18 + rand.Int63n(1e17)
 }
 
 /*

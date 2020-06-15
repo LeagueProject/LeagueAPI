@@ -150,3 +150,7 @@ func newSessionID() int64 {
 	}
 	return id
 }
+
+func addSession(sID, uID int64) {
+	db.Exec(`INSERT INTO sessions (sid,uid) VALUES ($1,$2)`, sID, uID)
+}

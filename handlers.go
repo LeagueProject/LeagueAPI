@@ -21,19 +21,34 @@ import (
 */
 func readHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	querry := p.ByName("key")
+	var printData []byte
 	if querry == "user" { ///By UID
 		qID, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
 		user, err := getUserByID(qID)
-		var printData []byte
 		if err == nil {
 			printData, _ = json.Marshal(user)
 		} else {
 			printData, _ = json.Marshal(HTTPResponse{Response: []string{"Unexistend user"}, Code: 404})
 		}
-		fmt.Fprintln(w, string(printData))
-	} else if querry == "post" {
-		fmt.Fprintf(w, "post")
+	} else if querry == "message" {
+		sID, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
+		uID, _ := strconv.ParseInt(r.FormValue("uid"), 10, 64)
+		mID, _ := strconv.ParseInt(r.FormValue("mid"), 10, 64)
+		if uID == getSession(sID) {
+			message := getMessageByID(mID)
+			if message.TypeOfReceiver == "person" {
+				if message.AuthorID == uID || message.Receiver == uID {
+					printData, _ = json.Marshal(message)
+				} else {
+					printData, _ = json.Marshal(*new(User))
+				}
+			}
+		} else {
+			printData, _ = json.Marshal(new(Message))
+		}
 	}
+	fmt.Fprintln(w, string(printData))
+
 }
 
 func addHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {

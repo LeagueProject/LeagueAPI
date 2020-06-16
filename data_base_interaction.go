@@ -182,3 +182,14 @@ func getSession(sID int64) int64 {
 	sessionQuery.Scan(&sID, &uid)
 	return uid
 }
+
+func getMessageByID(mID int64) Message {
+	messageQuery, err := db.Query(fmt.Sprintf("SELECT * FROM messages WHERE id=%v", mID))
+	if err != nil {
+		return *new(Message)
+	}
+	messageQuery.Next()
+	var m Message
+	messageQuery.Scan(&m.ID, &m.AuthorID, &m.Text, &m.MediaFilePath, &m.Date, &m.Receiver, &m.TypeOfReceiver)
+	return m
+}

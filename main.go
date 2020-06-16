@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"sync"
@@ -49,16 +48,9 @@ func main() {
 	serverCRUD.GET("/activate", activationHandler)
 	serverCRUD.POST("/login", loginHandler)
 	serverCRUD.POST("/check/session", sessionValidHandler)
-	querryUser, err := db.Query("SELECT * FROM league")
-	for querryUser.Next() {
-		var us User
-		if err := querryUser.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.FirstName, &us.LastName, &us.verified); err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(us)
-	}
+
 	defer db.Close()
-	err = db.Ping()
+	err := db.Ping()
 	if err != nil {
 		panic(err)
 	}

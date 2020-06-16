@@ -22,6 +22,8 @@ type User struct {
 	FirstName        string       `json:"FirstName"`
 	LastName         string       `json:"LastName"`
 	verified         bool
+	FollowingList    []int64 `json:"Following"`
+	FollowersList    []int64 `json:"Followers"`
 }
 
 /*

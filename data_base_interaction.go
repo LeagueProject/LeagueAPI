@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+
+	"github.com/lib/pq"
 )
 
 /*
@@ -40,7 +42,11 @@ func getUserByID(uID int64) (User, error) {
 	}
 	if userQuery.Next() {
 		var us User
-		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.FirstName, &us.LastName, &us.verified)
+		flwi := pq.Int64Array{}
+		flwr := pq.Int64Array{}
+		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.FirstName, &us.LastName, &us.verified, &flwi, &flwr)
+		us.FollowingList = flwi
+		us.FollowersList = flwr
 		return us, nil
 	}
 	return User{}, errors.New("User does not exist")
@@ -91,11 +97,11 @@ func addUser(newUser User) HTTPResponse {
 	if sendVerifcationMail(newUser.InstitutionEmail, "http://35.184.233.76:8080/activate?id="+strconv.FormatInt(userID, 10)) == false {
 		return HTTPResponse{Response: []string{"Invalid Email"}, Code: 404}
 	}
-	sqlStatement := `INSERT INTO league (UID,IEmail,PMail,Username,Password,YearOfStudy,College,University,Major,Serie,FirstName,LastName,verified) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`
+	sqlStatement := `INSERT INTO league (UID,IEmail,PMail,Username,Password,YearOfStudy,College,University,Major,Serie,FirstName,LastName,verified,following,followers) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)`
 	_, err := db.Exec(sqlStatement,
 		newUser.UID, newUser.InstitutionEmail, newUser.PersonalEmail, newUser.Username,
 		newUser.PasswordHash, newUser.YearOfStudy, newUser.College, newUser.University,
-		newUser.Major, newUser.Serie, newUser.FirstName, newUser.LastName, 0)
+		newUser.Major, newUser.Serie, newUser.FirstName, newUser.LastName, 0, pq.Array([]int64{newUser.UID}), pq.Array([]int64{newUser.UID}))
 	if err != nil {
 		panic(err)
 	}

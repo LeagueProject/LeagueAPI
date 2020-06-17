@@ -13,8 +13,8 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-var wg sync.WaitGroup
-var db *sql.DB
+var wg sync.WaitGroup //Wait Group ca sa nu se termine executia programului
+var db *sql.DB        //Data Base
 
 /*
 	@Note Comunicatia nu este inca secure pentru ca folosim http
@@ -23,10 +23,24 @@ var db *sql.DB
 		-> raspuns un json cu user
 		post ip:port/add/user (user ul este descris in body cu ajutorul unui json cu toate campurile)
 	}
+	@Note For Future reference : {
+		Database-ul are 3 table-uri :"league","messages","sessions" deocamdata
+		in "league" sunt tinuti userii
+	}
+	@Note : un tool bun pentru testing pe localhost sau pe server este POSTMAN :
+			te lasa sa creezi requesturi http custom
 	----TODO----
 	cumparat un domeniu + generat certificat SSL ca sa putem folosi https
 	ca sa fie cryptate requesturile
 	----END-----
+*/
+
+/**
+* @desc constante pentru database
+* @param $host/$port string     -> ip/port pentru conectare
+		 $user/$password/$dbane -> "creditentiale" pentru logare / acces la table-uri
+* @return none
+* @ author Mihai Indreias
 */
 
 const (
@@ -36,6 +50,14 @@ const (
 	password = "test@LEAGUEINC"
 	dbname   = "postgres"
 )
+
+/**
+* @desc realizeaza conexiunea la database si configureaza web handlers
+		ruleaza pe port 8080
+* @param none
+* @return none
+* @ author Mihai Indreias
+*/
 
 func main() {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)

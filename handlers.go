@@ -19,6 +19,21 @@ import (
 	NEVERMIND ??
 	Problema era cu grupurile , dar cred ca aia se face in cadrul structurii de grup...
 */
+
+/**
+* @desc Se ocupa de requesturile http de read
+* @param $w (ResponseWriter) , $r (Request) , $p (Params din cadrul URL-ului)
+* @return None , dar raspunde la request cu un JSON de tip user sau mesaj .../etc
+* @usage exemplu ( din flutter sau request simplu ) :  get $ip:8080/read/user?id=123567 (uid)
+													-> get $ip:8080/read/message?uid=123567&sid=8912325&mid=1234
+
+													(uid =ID-ul userului care face requestul)
+													(sid =ID-ul sesiunii al userlui care face requestul)
+													(mid =ID-ul mesajului pt request)
+
+* @author Mihai Indreias
+*/
+
 func readHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	querry := p.ByName("key")
 	var printData []byte
@@ -51,6 +66,16 @@ func readHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 }
 
+/**
+* @desc Se ocupa de requesturile http de add
+* @param $w (ResponseWriter) , $r (Request) , $p (Params din cadrul URL-ului)
+* @return None , dar raspunde la request cu un HTTPResonse sub forma JSON
+* @usage exemplu ( din flutter sau request simplu ) :  post $ip:8080/add/user
+													-> post $ip:8080/add/message
+		->In body-ul requestului trebuie sa fie un json care descrie structura (exemple in readme cred)
+* @author Mihai Indreias
+*/
+
 func addHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	querry := p.ByName("key")
 	decoder := json.NewDecoder(r.Body)
@@ -79,6 +104,13 @@ func addHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	}
 }
 
+/**
+* @desc Se ocupa de requesturile http de activare a mailurilor
+* @param $w (ResponseWriter) , $r (Request) , $p (Params din cadrul URL-ului)
+* @return None , dar raspunde la request cu un HTTPResonse sub forma JSON
+* @author Mihai Indreias
+ */
+
 func activationHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	id, _ := strconv.ParseInt(r.FormValue("id"), 10, 64)
 	user, err := getUserByID(id)
@@ -97,6 +129,19 @@ func activationHandler(w http.ResponseWriter, r *http.Request, p httprouter.Para
 	fmt.Fprintln(w, string(printData))
 }
 
+/**
+* @desc Se ocupa de requesturile http de login
+* @param $w (ResponseWriter) , $r (Request) , $p (Params din cadrul URL-ului)
+* @return None , dar raspunde la request cu un HTTPResonse sub forma JSON
+				Daca loginul este valabil
+					->Respone[0]=string cu userID-ul generat de login
+					->Response[1]=string cu sessionID-ul generat de login
+					->Code=200
+				Daca nu e valid sau userul nu e activat
+					->Response[0]="0"
+					->Code=4xx
+* @author Mihai Indreias
+*/
 func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	decoder := json.NewDecoder(r.Body)
 	var newU User
@@ -121,6 +166,17 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	fmt.Fprintln(w, string(printData))
 }
 
+/**
+* @desc Verifica daca o sesiune si un user sunt compatibili
+* @param $w (ResponseWriter) , $r (Request) , $p (Params din cadrul URL-ului)
+* @return None , dar raspunde la request cu un HTTPResonse sub forma JSON
+				Daca este match:
+					->"1",Code:200
+				Daca nu
+					->"0",Code:404
+* @author Mihai Indreias
+*/
+
 func sessionValidHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	sid, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
 	uid, _ := strconv.ParseInt(r.FormValue("uid"), 10, 64)
@@ -128,11 +184,14 @@ func sessionValidHandler(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 	if uid == getSession(sid) {
 		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(1, 10)}, Code: 200})
 	} else {
-		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(9, 10)}, Code: 404})
+		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(0, 10)}, Code: 404})
 	}
 	fmt.Fprintln(w, string(printData))
 }
 
+/**
+COD NETESTAT INCA
+*/
 func followStatusHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	sid, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
 	fr, _ := strconv.ParseInt(r.FormValue("from"), 10, 64)

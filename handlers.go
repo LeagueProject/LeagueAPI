@@ -132,3 +132,37 @@ func sessionValidHandler(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 	}
 	fmt.Fprintln(w, string(printData))
 }
+
+func followStatusHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	sid, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
+	fr, _ := strconv.ParseInt(r.FormValue("from"), 10, 64)
+	to, _ := strconv.ParseInt(r.FormValue("to"), 10, 64)
+	var printData []byte
+	if fr == getSession(sid) {
+		if p.ByName("key") == "follow" {
+			ok, _ := isFollowing(to, fr)
+			if ok {
+				printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(1, 10)}, Code: 201})
+			} else {
+				if findUserByID(to) {
+					db.Exec(`UPDATE league SET following = array_append(following,$1) WHERE uid=$2`, to, fr)
+					db.Exec(`UPDATE league SET followers = array_append(followers,$2) WHERE uid=$1`, to, fr)
+					printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(1, 10)}, Code: 202})
+				} else {
+					printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(0, 10)}, Code: 404})
+				}
+			}
+		} else if p.ByName("key") == "unfollow" {
+			ok, _ := isFollowing(to, fr)
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(1, 10)}, Code: 201})
+			if ok {
+				db.Exec(`UPDATE league SET following = array_remove(following,$2) WHERE uid=$1`, to, fr)
+				db.Exec(`UPDATE league SET followers = array_remove(followers,$1) WHERE uid=$2`, to, fr)
+			}
+		}
+
+	} else {
+		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(0, 10)}, Code: 404})
+	}
+	fmt.Fprintln(w, string(printData))
+}

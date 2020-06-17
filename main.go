@@ -33,7 +33,7 @@ const (
 	host     = "35.184.233.76"
 	port     = 5432
 	user     = "postgres"
-	password = "test"
+	password = "test@LEAGUEINC"
 	dbname   = "postgres"
 )
 
@@ -48,7 +48,7 @@ func main() {
 	serverCRUD.GET("/activate", activationHandler)
 	serverCRUD.POST("/login", loginHandler)
 	serverCRUD.POST("/check/session", sessionValidHandler)
-
+	serverCRUD.POST("/followStatus/:key", followStatusHandler)
 	defer db.Close()
 	err := db.Ping()
 	if err != nil {

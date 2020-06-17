@@ -199,3 +199,13 @@ func getMessageByID(mID int64) Message {
 	messageQuery.Scan(&m.ID, &m.AuthorID, &m.Text, &m.MediaFilePath, &m.Date, &m.Receiver, &m.TypeOfReceiver)
 	return m
 }
+
+func isFollowing(from, to int64) (bool, int) {
+	fr, _ := getUserByID(from)
+	for i, v := range fr.FollowingList {
+		if v == to {
+			return true, i
+		}
+	}
+	return false, 0
+}

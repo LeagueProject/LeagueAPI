@@ -1,6 +1,5 @@
 
-# LeagueAPI
-# Build insturctions:
+# Build instructions:
 `git clone https://github.com/LeagueProject/LeagueAPI` \
 `cd LeagueAPI` \
 `go get github.com/julienschmidt/httprouter` \

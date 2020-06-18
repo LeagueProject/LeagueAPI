@@ -1,6 +1,6 @@
 package main
 
-type passwordType string
+type passwordType string //Am folosit passwordType ca sa ascund parola cand formez un JSON ? bad idea idk
 
 /**
 * @desc clasa pentru tipul basic User

@@ -75,7 +75,11 @@ func getUserByUsername(username string) (User, error) {
 	}
 	if userQuery.Next() {
 		var us User
-		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.FirstName, &us.LastName, &us.verified)
+		flwi := pq.Int64Array{}
+		flwr := pq.Int64Array{}
+		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.FirstName, &us.LastName, &us.verified, &flwi, &flwr)
+		us.FollowingList = flwi
+		us.FollowersList = flwr
 		return us, nil
 	}
 	return User{}, errors.New("User does not exist")

@@ -149,6 +149,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	us, err := getUserByUsername(newU.Username)
 	var printData []byte
 	fmt.Println(us)
+	fmt.Println(newU)
 	if us.verified == false {
 		printData, _ = json.Marshal(HTTPResponse{Response: []string{"0", "Not verified"}, Code: 404})
 	} else if err == nil {
@@ -190,8 +191,18 @@ func sessionValidHandler(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 }
 
 /**
-COD NETESTAT INCA
+* @desc Updateaza statusul de follow al unui user fata de alt user
+* @param $w (ResponseWriter) , $r (Request) , $p (Params din cadrul URL-ului)
+		   ->use EX : $ip8080/followStatus/follow?from=3060246767619880621&to=5090235015690038407&sid=7003377197631441573
+		   ->sid=sessionID al userului care face requestul
+		   ->from=uID al userlui care face requestul
+		   ->to=persoana careia ii da follow/unfollow
+* @return None , dar raspunde la request cu un HTTPResonse sub forma JSON
+				CODE : 404 -> to nu a fost gasit sau sesiunea e invalida
+				CODE : 2XX -> deja este dat follow sau s-a dat acum(succes) , la unfollow nu trebuie facut multe test (mereu e succes)
+* @author Mihai Indreias
 */
+
 func followStatusHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	sid, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
 	fr, _ := strconv.ParseInt(r.FormValue("from"), 10, 64)
@@ -199,7 +210,7 @@ func followStatusHandler(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 	var printData []byte
 	if fr == getSession(sid) {
 		if p.ByName("key") == "follow" {
-			ok, _ := isFollowing(to, fr)
+			ok, _ := isFollowing(fr, to)
 			if ok {
 				printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(1, 10)}, Code: 201})
 			} else {
@@ -212,11 +223,12 @@ func followStatusHandler(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 				}
 			}
 		} else if p.ByName("key") == "unfollow" {
-			ok, _ := isFollowing(to, fr)
-			printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(1, 10)}, Code: 201})
+			ok, _ := isFollowing(fr, to)
+			printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(10, 10)}, Code: 201})
+			fmt.Println(ok)
 			if ok {
-				db.Exec(`UPDATE league SET following = array_remove(following,$2) WHERE uid=$1`, to, fr)
-				db.Exec(`UPDATE league SET followers = array_remove(followers,$1) WHERE uid=$2`, to, fr)
+				db.Exec(`UPDATE league SET following = array_remove(following,$2) WHERE uid=$1`, fr, to)
+				db.Exec(`UPDATE league SET followers = array_remove(followers,$1) WHERE uid=$2`, fr, to)
 			}
 		}
 

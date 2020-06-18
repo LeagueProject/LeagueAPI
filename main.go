@@ -71,6 +71,8 @@ func main() {
 	serverCRUD.POST("/login", loginHandler)
 	serverCRUD.POST("/check/session", sessionValidHandler)
 	serverCRUD.POST("/followStatus/:key", followStatusHandler)
+
+	fmt.Println(isFollowing(3060246767619880621, 5090235015690038407))
 	defer db.Close()
 	err := db.Ping()
 	if err != nil {

@@ -79,7 +79,7 @@ func main() {
 	}
 	wg.Add(1)
 	go func() {
-		http.ListenAndServe(":8000", serverCRUD)
+		http.ListenAndServe(":8800", serverCRUD)
 		wg.Done()
 	}()
 	wg.Wait()

@@ -44,10 +44,10 @@ var db *sql.DB        //Data Base
 */
 
 const (
-	host     = "35.184.233.76"
+	host     = "localhost"
 	port     = 5432
 	user     = "postgres"
-	password = "test@LEAGUEINC"
+	password = "indreias@LEAGUEINC"
 	dbname   = "postgres"
 )
 
@@ -72,7 +72,6 @@ func main() {
 	serverCRUD.POST("/check/session", sessionValidHandler)
 	serverCRUD.POST("/followStatus/:key", followStatusHandler)
 
-	fmt.Println(isFollowing(3060246767619880621, 5090235015690038407))
 	defer db.Close()
 	err := db.Ping()
 	if err != nil {
@@ -80,7 +79,7 @@ func main() {
 	}
 	wg.Add(1)
 	go func() {
-		http.ListenAndServe(":8080", serverCRUD)
+		http.ListenAndServe(":8000", serverCRUD)
 		wg.Done()
 	}()
 	wg.Wait()

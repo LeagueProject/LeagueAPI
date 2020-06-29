@@ -9,6 +9,8 @@
 
 # Api usage :
 
+# Pentru test folosim un tool "postman" : https://www.postman.com/
+
 # Read
 ```
 get $host:$port/read/user?id=3060246767619880621  -> returneaza un user dupa ID sub forma json

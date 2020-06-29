@@ -44,7 +44,7 @@ var db *sql.DB        //Data Base
 */
 
 const (
-	host     = "localhost"
+	host     = "35.202.25.156"
 	port     = 5432
 	user     = "postgres"
 	password = "indreias@LEAGUEINC"

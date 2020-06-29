@@ -26,7 +26,7 @@ type User struct {
 	Serie            string       `json:"Serie"`
 	FirstName        string       `json:"FirstName"`
 	LastName         string       `json:"LastName"`
-	verified         bool
+	verified         int
 	FollowingList    []int64 `json:"Following"`
 	FollowersList    []int64 `json:"Followers"`
 }

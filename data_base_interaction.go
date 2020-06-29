@@ -77,7 +77,7 @@ func getUserByUsername(username string) (User, error) {
 		var us User
 		flwi := pq.Int64Array{}
 		flwr := pq.Int64Array{}
-		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Serie, &us.FirstName, &us.LastName, &us.verified, &flwi, &flwr, &us.Major)
+		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Serie, &us.FirstName, &us.LastName, &us.Major, &us.verified, &flwi, &flwr)
 		us.FollowingList = flwi
 		us.FollowersList = flwr
 		return us, nil

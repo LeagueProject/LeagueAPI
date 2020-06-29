@@ -118,7 +118,7 @@ func activationHandler(w http.ResponseWriter, r *http.Request, p httprouter.Para
 	if err != nil {
 		printData, _ = json.Marshal(HTTPResponse{Response: []string{"User does not exist"}, Code: 404})
 	} else {
-		if user.verified == true {
+		if user.verified == 1 {
 			printData, _ = json.Marshal(HTTPResponse{Response: []string{"User already activated"}, Code: 304})
 		} else {
 			verifyUser(id)
@@ -150,7 +150,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	var printData []byte
 	fmt.Println(us)
 	fmt.Println(newU)
-	if us.verified == false {
+	if us.verified == 0 {
 		printData, _ = json.Marshal(HTTPResponse{Response: []string{"0", "Not verified"}, Code: 404})
 	} else if err == nil {
 		if canLogin(newU.Username, string(newU.PasswordHash)) {

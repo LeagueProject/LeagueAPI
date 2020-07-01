@@ -187,7 +187,7 @@ func sendMessage(newMessage Message) {
  */
 
 func verifyUser(uID int64) {
-	db.Exec(`UPDATE league SET verified=true WHERE uid=$1`, uID)
+	db.Exec(`UPDATE league SET verified=1 WHERE uid=$1`, uID)
 }
 
 /**

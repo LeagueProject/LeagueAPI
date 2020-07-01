@@ -89,6 +89,7 @@ get $host:$port/activate?id=6030937711187684612
 ->Activeaza userul cu id-ul $id
 Returneaza un HTTPResonse ( vezi data_types.go ) cu raspunsul 
 ```
+# Login
 ```
 post $host:$port/login
 + In body-ul requestului:

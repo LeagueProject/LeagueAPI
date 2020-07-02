@@ -122,3 +122,16 @@ post $host:$port:followStatus/unfollow?from=3060246767619880621&to=5090235015690
 ->Da unfollow userului $TO de la $FROM care Session Id-ul $SID
 Returneaza un HTTPResonse ( vezi data_types.go ) cu raspunsul 
 ```
+# Structura Database
+
+```
+Am folosit DB-ul cu numele default ("postgres")
+    ->Este structurat in 3 table-uri : league, messages , sessions
+    ->league : contine userii cu toate detaliile
+    ->messages contine mesajele cu toate detaliile
+    ->sessions contine perechi de genul (sid,uid) care reprezinta sesiunile valide
+Pentru testing se folosesti cli de la psql ( cu detaliile din main.go )
+Ca sa vezi toate informatiile dintr-un table ( o sa ai nevoie pt sesiuni si altele )
+    SELECT * FROM table_name;
+    + alt ex: SELECT uid FROM sessions WHERE sid=100005;
+```

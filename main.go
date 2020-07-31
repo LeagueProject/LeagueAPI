@@ -53,7 +53,7 @@ const (
 
 /**
 * @desc realizeaza conexiunea la database si configureaza web handlers
-		ruleaza pe port 8080
+		ruleaza pe port 8800
 * @param none
 * @return none
 * @ author Mihai Indreias

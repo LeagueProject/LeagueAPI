@@ -90,10 +90,8 @@ func addHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 		decoder.Decode(&newMessage)
 		uID := newMessage.AuthorID
 		sID, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
-
-		err := checkUserByID(uID, sID)
 		var printData []byte
-		if err == nil {
+		if uID == getSession(sID) {
 			newMessage.ID = newMessageID()
 			sendMessage(newMessage)
 			printData, _ = json.Marshal(HTTPResponse{Response: []string{"Sent"}, Code: 200})

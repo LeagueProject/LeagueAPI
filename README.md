@@ -70,8 +70,8 @@ post $host:$port/add/user
 Returneaza un HTTPResonse ( vezi data_types.go ) cu raspunsul 
 ```
 ```
-post $host:$port/add/message?id=123
-    -> id = id-ul sessiunii
+post $host:$port/add/message?sid=123
+    -> sid = id-ul sessiunii
     + In body-ul requestului:
     {
     "ID":123345678,

@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"crypto/md5"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 
 	"github.com/lib/pq"
@@ -162,6 +165,20 @@ func seesionExist(sID int64) bool {
 	return sessionQuery.Next()
 }
 
+func getSessionsByUID(uID int64) []string {
+	resp := []string{}
+	sessionQuery, err := db.Query(fmt.Sprintf("SELECT sid FROM sessions WHERE uid=%v", uID))
+	if err != nil {
+		return resp
+	}
+	for sessionQuery.Next() {
+		var sID int64
+		sessionQuery.Scan(&sID)
+		resp = append(resp, strconv.FormatInt(sID, 10))
+	}
+	return resp
+}
+
 /**
 * @desc Trimite un mesaj in DB
 * @param $newMessage (Message)
@@ -173,6 +190,20 @@ func sendMessage(newMessage Message) {
 	sqlStatement := `INSERT INTO messages (id,authorid,text,mediafilepath,date,receiver,typeofreceiver) VALUES($1,$2,$3,$4,$5,$6,$7)`
 	_, err := db.Exec(sqlStatement,
 		newMessage.ID, newMessage.AuthorID, newMessage.Text, newMessage.MediaFilePath, newMessage.Date, newMessage.Receiver, newMessage.TypeOfReceiver)
+
+	reqBody, _ := json.Marshal(map[string]interface{}{
+		"app_id": "b449a13c-7d57-404b-ae77-596ec92ddc16",
+		"contents": map[string]string{
+			"en": newMessage.Text,
+		},
+		"include_external_user_ids": getSessionsByUID(newMessage.Receiver),
+	})
+	req, _ := http.NewRequest("POST", "https://onesignal.com/api/v1/notifications", bytes.NewBuffer(reqBody))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Basic NWMyYTE1YTktYTcyZS00MDVjLWFkYzYtM2M4MTQwOTA5MjQy")
+	client := &http.Client{}
+	client.Do(req)
+	fmt.Println(string(reqBody))
 	if err != nil {
 		fmt.Println(err.Error())
 	}

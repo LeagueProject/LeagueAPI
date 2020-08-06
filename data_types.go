@@ -59,7 +59,7 @@ type Message struct {
 	ID             int64  `json:"ID"`
 	AuthorID       int64  `json:"AuthorID"`
 	Text           string `json:"Text"`
-	MediaFilePath  string `json:"Media"`
+	Media          string `json:"Media"`
 	Date           string `json:"Date"`
 	Receiver       int64  `json:"Receiver"`
 	TypeOfReceiver string `json:"TypeOfReceiver"`

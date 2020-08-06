@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -55,7 +59,7 @@ func readHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 				if message.AuthorID == uID || message.Receiver == uID {
 					printData, _ = json.Marshal(message)
 				} else {
-					printData, _ = json.Marshal(*new(User))
+					printData, _ = json.Marshal(*new(Message))
 				}
 			}
 		} else {
@@ -78,27 +82,41 @@ func readHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 func addHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	querry := p.ByName("key")
-	decoder := json.NewDecoder(r.Body)
 	if querry == "user" {
+		decoder := json.NewDecoder(r.Body)
 		var newU User
 		decoder.Decode(&newU)
 		response := addUser(newU)
 		printData, _ := json.Marshal(response)
 		fmt.Fprintln(w, string(printData))
 	} else if querry == "message" {
+		r.ParseMultipartForm(32 << 20)
 		var newMessage Message
-		decoder.Decode(&newMessage)
+		json.Unmarshal([]byte(r.FormValue("json")), &newMessage)
 		uID := newMessage.AuthorID
 		sID, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
 		var printData []byte
-		if uID == getSession(sID) {
-			newMessage.ID = newMessageID()
-			sendMessage(newMessage)
-			printData, _ = json.Marshal(HTTPResponse{Response: []string{"Sent"}, Code: 200})
-		} else {
-			printData, _ = json.Marshal(HTTPResponse{Response: []string{"Not Sent"}, Code: 401})
+		fmt.Println(newMessage, sID, uID)
+		if newMessage.TypeOfReceiver == "person" {
+
+			if uID == getSession(sID) {
+				newMessage.ID = newMessageID()
+				sendMessage(newMessage)
+				if len(newMessage.Media) >= 3 && newMessage.Media[:3] == "yes" {
+					var buf bytes.Buffer
+					file, header, _ := r.FormFile("file")
+					name := strings.Split(header.Filename, ".")
+					fmt.Printf("File name %s %s\n", name[0], name[1])
+					defer file.Close()
+					io.Copy(&buf, file)
+					ioutil.WriteFile("files/"+strconv.FormatInt(newMessage.ID, 10)+"."+newMessage.Media[3:], []byte(buf.String()), 0666)
+				}
+				printData, _ = json.Marshal(HTTPResponse{Response: []string{"Sent", strconv.FormatInt(newMessage.ID, 10)}, Code: 200})
+			} else {
+				printData, _ = json.Marshal(HTTPResponse{Response: []string{"Not Sent"}, Code: 401})
+			}
+			fmt.Fprintln(w, string(printData))
 		}
-		fmt.Fprintln(w, string(printData))
 	}
 }
 
@@ -234,4 +252,24 @@ func followStatusHandler(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 		printData, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(0, 10)}, Code: 404})
 	}
 	fmt.Fprintln(w, string(printData))
+}
+
+func uploadHandler(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	uID, _ := strconv.ParseInt(r.FormValue("uid"), 10, 64)
+	sID, _ := strconv.ParseInt(r.FormValue("sid"), 10, 64)
+	var rb []byte
+	if getSession(sID) != uID {
+		rb, _ = json.Marshal(HTTPResponse{Response: []string{"-1"}, Code: 400})
+	} else {
+		r.ParseMultipartForm(32 << 20)
+		var buf bytes.Buffer
+		file, _, _ := r.FormFile("file")
+		defer file.Close()
+		io.Copy(&buf, file)
+		newFID := newFileID()
+		ioutil.WriteFile("files/"+strconv.FormatInt(newFID, 10), []byte(buf.String()), 0666)
+		rb, _ = json.Marshal(HTTPResponse{Response: []string{strconv.FormatInt(newFID, 10)}, Code: 200})
+		buf.Reset()
+	}
+	fmt.Fprintln(w, string(rb))
 }

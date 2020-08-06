@@ -20,6 +20,7 @@ import (
  */
 func findUserByUsername(userName string) bool {
 	userQuery, err := db.Query(fmt.Sprintf("SELECT * FROM league WHERE Username='%s'", userName))
+	defer userQuery.Close()
 	if err != nil {
 		return false
 	}
@@ -34,6 +35,7 @@ func findUserByUsername(userName string) bool {
  */
 func findUserByID(userID int64) bool {
 	userQuery, err := db.Query(fmt.Sprintf("SELECT * FROM league WHERE UID=%v", userID))
+	defer userQuery.Close()
 	if err != nil {
 		return false
 	}
@@ -47,17 +49,20 @@ func findUserByID(userID int64) bool {
 					 -> User , nil daca exista userul (Field-ul de parola este gol)
 * @author Mihai Indreias
 */
+
 func getUserByID(uID int64) (User, error) {
 	userQuery, err := db.Query(fmt.Sprintf("SELECT * FROM league WHERE UID=%v", uID))
 	if err != nil {
 		return User{}, err
 	}
+	defer userQuery.Close()
 	if userQuery.Next() {
 		var us User
 		flwi := pq.Int64Array{}
 		flwr := pq.Int64Array{}
 		userQuery.Scan(&us.UID, &us.InstitutionEmail, &us.PersonalEmail, &us.Username, &us.PasswordHash, &us.YearOfStudy, &us.College, &us.University, &us.Major, &us.Serie, &us.FirstName, &us.LastName, &us.verified, &flwi, &flwr)
 		us.FollowingList = flwi
+
 		us.FollowersList = flwr
 		return us, nil
 	}
@@ -73,6 +78,7 @@ func getUserByID(uID int64) (User, error) {
 */
 func getUserByUsername(username string) (User, error) {
 	userQuery, err := db.Query(fmt.Sprintf("SELECT * FROM league WHERE Username='%s'", username))
+	defer userQuery.Close()
 	if err != nil {
 		return User{}, err
 	}
@@ -96,6 +102,8 @@ func getUserByUsername(username string) (User, error) {
  */
 func canLogin(user, pass string) bool {
 	userQuery, err := db.Query(fmt.Sprintf("SELECT Username,Password FROM league WHERE Username='%s'", user))
+	defer userQuery.Close()
+
 	if err != nil {
 		return false
 	}
@@ -159,6 +167,7 @@ func checkUserByID(uID, sID int64) error {
 
 func seesionExist(sID int64) bool {
 	sessionQuery, err := db.Query(fmt.Sprintf("SELECT * FROM sessions WHERE sid=%v", sID))
+	defer sessionQuery.Close()
 	if err != nil {
 		return false
 	}
@@ -168,6 +177,7 @@ func seesionExist(sID int64) bool {
 func getSessionsByUID(uID int64) []string {
 	resp := []string{}
 	sessionQuery, err := db.Query(fmt.Sprintf("SELECT sid FROM sessions WHERE uid=%v", uID))
+	defer sessionQuery.Close()
 	if err != nil {
 		return resp
 	}
@@ -187,14 +197,12 @@ func getSessionsByUID(uID int64) []string {
  */
 
 func sendMessage(newMessage Message) {
-	sqlStatement := `INSERT INTO messages (id,authorid,text,mediafilepath,date,receiver,typeofreceiver) VALUES($1,$2,$3,$4,$5,$6,$7)`
-	_, err := db.Exec(sqlStatement,
-		newMessage.ID, newMessage.AuthorID, newMessage.Text, newMessage.MediaFilePath, newMessage.Date, newMessage.Receiver, newMessage.TypeOfReceiver)
 
 	reqBody, _ := json.Marshal(map[string]interface{}{
-		"app_id": "b449a13c-7d57-404b-ae77-596ec92ddc16",
+		"app_id":   "b449a13c-7d57-404b-ae77-596ec92ddc16",
+		"headings": map[string]string{"en": "msg"},
 		"contents": map[string]string{
-			"en": newMessage.Text,
+			"en": strconv.FormatInt(newMessage.ID, 10),
 		},
 		"include_external_user_ids": getSessionsByUID(newMessage.Receiver),
 	})
@@ -204,6 +212,11 @@ func sendMessage(newMessage Message) {
 	client := &http.Client{}
 	client.Do(req)
 	fmt.Println(string(reqBody))
+
+	sqlStatement := `INSERT INTO messages (id,authorid,text,mediafilepath,date,receiver,typeofreceiver) VALUES($1,$2,$3,$4,$5,$6,$7)`
+	_, err := db.Exec(sqlStatement,
+		newMessage.ID, newMessage.AuthorID, newMessage.Text, newMessage.Media, newMessage.Date, newMessage.Receiver, newMessage.TypeOfReceiver)
+
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -256,6 +269,7 @@ func addSession(sID, uID int64) {
 
 func messageExist(ID int64) bool {
 	messageQuery, err := db.Query(fmt.Sprintf("SELECT * FROM messages WHERE id=%v", ID))
+	defer messageQuery.Close()
 	if err != nil {
 		return false
 	}
@@ -287,6 +301,7 @@ func newMessageID() int64 {
 
 func getSession(sID int64) int64 {
 	sessionQuery, err := db.Query(fmt.Sprintf("SELECT * FROM sessions WHERE sid=%v", sID))
+	defer sessionQuery.Close()
 	if err != nil {
 		return 0
 	}
@@ -306,12 +321,13 @@ func getSession(sID int64) int64 {
 
 func getMessageByID(mID int64) Message {
 	messageQuery, err := db.Query(fmt.Sprintf("SELECT * FROM messages WHERE id=%v", mID))
+	defer messageQuery.Close()
 	if err != nil {
 		return *new(Message)
 	}
 	messageQuery.Next()
 	var m Message
-	messageQuery.Scan(&m.ID, &m.AuthorID, &m.Text, &m.MediaFilePath, &m.Date, &m.Receiver, &m.TypeOfReceiver)
+	messageQuery.Scan(&m.ID, &m.AuthorID, &m.Text, &m.Media, &m.Date, &m.Receiver, &m.TypeOfReceiver)
 	return m
 }
 

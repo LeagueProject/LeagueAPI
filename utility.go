@@ -4,6 +4,8 @@ import (
 	"log"
 	"math/rand"
 	"net/smtp"
+	"os"
+	"strconv"
 )
 
 /**
@@ -50,4 +52,15 @@ func sendVerifcationMail(to, body string) bool {
 		return false
 	}
 	return true
+}
+
+func newFileID() int64 {
+	fID := generate18DigitID()
+	for {
+		if _, err := os.Stat("files/" + strconv.FormatInt(fID, 10)); err != nil {
+			break
+		}
+		fID = generate18DigitID()
+	}
+	return fID
 }

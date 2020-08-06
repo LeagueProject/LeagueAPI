@@ -44,7 +44,7 @@ var db *sql.DB        //Data Base
 */
 
 const (
-	host     = "35.202.25.156"
+	host     = "127.0.0.1"
 	port     = 5432
 	user     = "postgres"
 	password = "indreias@LEAGUEINC"
@@ -71,7 +71,7 @@ func main() {
 	serverCRUD.POST("/login", loginHandler)
 	serverCRUD.POST("/check/session", sessionValidHandler)
 	serverCRUD.POST("/followStatus/:key", followStatusHandler)
-
+	serverCRUD.POST("/upload", uploadHandler)
 	defer db.Close()
 	err := db.Ping()
 	if err != nil {
